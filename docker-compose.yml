@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  webapp:
+    build:
+      context: ./MistFeatureForge.Client
+      dockerfile: Dockerfile
+    container_name: mistfeatureforge-webapp
+    ports:
+      - "5188:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Database=mistfeatureforge;Username=postgres;Password=postgres
+    depends_on:
+      - db
+    networks:
+      - mistfeatureforge-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:latest
+    container_name: mistfeatureforge-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=mistfeatureforge
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - mistfeatureforge-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    name: mistfeatureforge-postgres-data
+
+networks:
+  mistfeatureforge-network:
+    name: mistfeatureforge-network
